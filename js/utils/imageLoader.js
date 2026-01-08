@@ -1,7 +1,6 @@
 /**
- * 🖼️ CARGADOR DE IMÁGENES
- * Utilidades para cargar y procesar imágenes
- * Soporta reintentos, timeouts y conversión a Base64
+ * 🖼️ CARGADOR DE IMÁGENES - Versión simplificada y funcional
+ * Basado en el prototipo funcional
  */
 
 /**
@@ -35,11 +34,13 @@ export const createPlaceholderImage = (text = 'SIN IMAGEN', width = 200, height 
 export const getAbsoluteImageUrl = (relativePath) => {
     if (!relativePath) return null;
     
-    // Si ya es URL absoluta, retornarla
+    // Si ya es URL absoluta (http/https), retornarla
     if (relativePath.startsWith('http')) return relativePath;
     
     // Para rutas relativas, usarlas directamente
-    console.log(`📋 Usando ruta relativa: ${relativePath}`);
+    // El navegador las resolverá automáticamente desde la carpeta del proyecto
+    console.log(`📍 Usando ruta relativa: ${relativePath}`);
+    
     return relativePath;
 };
 
@@ -166,20 +167,20 @@ export const preloadProductImages = async (products, onProgress = null) => {
     console.log(`\n${'='.repeat(60)}`);
     console.log('📦 INICIANDO PRECARGA DE IMÁGENES');
     console.log(`${'='.repeat(60)}`);
-    
+
     const startTime = Date.now();
     const imageMap = {};
     const uniqueUrls = [...new Set(products.map(p => p.image).filter(Boolean))];
-    
+
     console.log(`📊 Total de imágenes únicas a cargar: ${uniqueUrls.length}`);
-    
+
     for (let i = 0; i < uniqueUrls.length; i++) {
         const url = uniqueUrls[i];
         console.log(`\n[${i + 1}/${uniqueUrls.length}] Cargando: ${url}`);
-        
+
         const imageData = await loadImageAsBase64(url);
         imageMap[url] = imageData;
-        
+
         if (onProgress) {
             onProgress({
                 current: i + 1,
@@ -190,19 +191,19 @@ export const preloadProductImages = async (products, onProgress = null) => {
             });
         }
     }
-    
+
     const endTime = Date.now();
     const successful = Object.values(imageMap).filter(d => d.success).length;
     const failed = uniqueUrls.length - successful;
-    
+
     console.log(`\n${'='.repeat(60)}`);
     console.log('✅ PRECARGA COMPLETADA');
     console.log(`${'='.repeat(60)}`);
-    console.log(`⏱️  Tiempo total: ${endTime - startTime}ms`);
+    console.log(`⏱️ Tiempo total: ${endTime - startTime}ms`);
     console.log(`✅ Exitosas: ${successful}/${uniqueUrls.length}`);
     console.log(`❌ Fallidas: ${failed}/${uniqueUrls.length}`);
     console.log(`${'='.repeat(60)}\n`);
-    
+
     return imageMap;
 };
 
@@ -225,77 +226,10 @@ export const insertImageInPDF = (doc, imageData, x, y, width, height) => {
     }
 };
 
-/**
- * 🎯 Obtener dimensiones de imagen
- */
-export const getImageDimensions = (imageUrl) => {
-    return new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => {
-            resolve({
-                width: img.width,
-                height: img.height,
-                aspectRatio: img.width / img.height
-            });
-        };
-        img.onerror = () => {
-            resolve({
-                width: 0,
-                height: 0,
-                aspectRatio: 1
-            });
-        };
-        img.src = imageUrl;
-    });
-};
-
-/**
- * 🔄 Convertir imagen a diferentes formatos
- */
-export const convertImageFormat = async (imageUrl, format = 'jpeg', quality = 0.95) => {
-    return new Promise((resolve) => {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
-            
-            const mimeType = `image/${format}`;
-            const dataUrl = canvas.toDataURL(mimeType, quality);
-            resolve(dataUrl);
-        };
-        
-        img.onerror = () => {
-            resolve(null);
-        };
-        
-        img.src = imageUrl;
-    });
-};
-
-/**
- * 📊 Obtener información de imagen
- */
-export const getImageInfo = async (imageUrl) => {
-    const dimensions = await getImageDimensions(imageUrl);
-    return {
-        url: imageUrl,
-        ...dimensions,
-        size: 'unknown'
-    };
-};
-
 export default {
     createPlaceholderImage,
     getAbsoluteImageUrl,
     loadImageAsBase64,
     preloadProductImages,
-    insertImageInPDF,
-    getImageDimensions,
-    convertImageFormat,
-    getImageInfo
+    insertImageInPDF
 };

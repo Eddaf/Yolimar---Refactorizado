@@ -24,9 +24,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
     
     <!-- Estilos globales -->
+    <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/layout.css">
-    <link rel="stylesheet" href="css/components.css">
+
     
     <style>
         ::-webkit-scrollbar { width: 8px; height: 6px; }
@@ -40,91 +41,289 @@
 <body class="bg-white text-gray-900 font-sans antialiased">
     <div id="root"></div>
 
-    <!-- Módulos de configuración -->
+    <!-- ============================================================
+         📦 IMPORTACIÓN SECUENCIAL DE MÓDULOS
+         Orden: Config → Utilidades → Gestores → Contextos → Componentes
+    ============================================================ -->
+
     <script type="module">
-        // Importar configuración
-        import { COLOR_SYSTEM, COLOR_MAP, COLOR_NAMES } from './config/colors.js';
-        import { TYPOGRAPHY, TEXT_STYLES } from './config/typography.js';
+        // ========================================================
+        // 1️⃣ CONFIGURACIÓN - Constantes y datos base
+        // ========================================================
+        
+        // Configuración de colores
+        import { COLOR_SYSTEM, COLOR_MAP, COLOR_NAMES, PRIMARY_COLOR_HEX, hexToRgba, adjustHexColor } from './js/config/colors.js';
+        
+        // Configuración de tipografía
+        import { TYPOGRAPHY, getTypographyCSS, applyTypography } from './js/config/typography.js';
+        
+        // Configuración principal
         import { 
+            SIZE_GROUPS, 
+            AVAILABLE_SIZES, 
+            TYPE_IMAGES, 
             CONFIG_DATA, 
             ADMIN_USERS, 
             CATALOG_PRODUCTS,
             IMAGES_DB,
             DESIGNS_DB,
-            SIZE_GROUPS
-        } from './config/constants.js';
-        import { STORE_INFO } from './config/storeData.js';
-
-        // Importar utilidades
-        import { 
             getPriceByTypeAndSize,
-            getPriceWithDiscount,
+            getPriceWithDiscount
+        } from './js/config/constants.js';
+        
+        // Datos de la tienda
+        import { STORE_INFO, getContactInfo, getBusinessHours, getPolicies, getStoreConfig, calculateWithTax, calculateShipping } from './js/config/storeData.js';
+
+        // ========================================================
+        // 2️⃣ UTILIDADES - Funciones auxiliares
+        // ========================================================
+        
+        // Utilidades de precios
+        import { 
             calculateTotalPrice,
             calculatePriceBreakdown,
-            calculateCartTotal
+            calculateCartTotal,
+            getDiscountInfo,
+            hasDiscount,
+            getQuantityForDiscount,
+            calculateTotalSavings,
+            getPriceRange,
+            formatPrice,
+            comparePrices
         } from './js/utils/priceCalculator.js';
+        
+        // Gestor de carrito
         import { CartManager, cartManager } from './js/utils/cartManager.js';
-        import * as helpers from './js/utils/helpers.js';
-        import * as imageLoader from './js/utils/imageLoader.js';
-        import { ICONS, getIconSVG } from './js/icons.js';
+        
+        // Helpers generales
+        import { 
+            getColorName,
+            getColorCode,
+            getColorsFromProduct,
+            getSizesFromProduct,
+            getColorNamesFromProduct,
+            getSizeNamesFromProduct,
+            getMinPriceFromProduct,
+            getMaxPriceFromProduct,
+            getTotalStockFromProduct,
+            getDesignNameFromPath,
+            formatPrice as formatPriceHelper,
+            formatDate,
+            formatTime,
+            formatDateTime,
+            isValidEmail,
+            isValidPhone,
+            capitalize,
+            toUpperCase,
+            toLowerCase,
+            toTitleCase,
+            generateRandomNumber,
+            generateUniqueId,
+            copyToClipboard,
+            downloadFile,
+            calculatePercentage,
+            calculateDiscount,
+            calculateDiscountedPrice,
+            calculateTax,
+            calculatePriceWithTax,
+            searchInArray,
+            sortArray,
+            groupArray,
+            getArrayStats,
+            delay,
+            retry,
+            saveToLocalStorage,
+            getFromLocalStorage,
+            removeFromLocalStorage,
+            clearLocalStorage
+        } from './js/utils/helpers.js';
+        
+        // Cargador de imágenes
+        import { 
+            createPlaceholderImage,
+            getAbsoluteImageUrl,
+            loadImageAsBase64,
+            preloadProductImages,
+            insertImageInPDF,
+            getImageDimensions,
+            convertImageFormat,
+            getImageInfo
+        } from './js/utils/imageLoader.js';
 
-        // Importar gestores
+        // ========================================================
+        // 3️⃣ GESTORES - Lógica de negocio
+        // ========================================================
+        
+        // Autenticación y administración
         import { AuthManager, AdminDataManager, authManager, adminDataManager } from './js/admin.js';
+        
+        // Catálogo
         import { CatalogManager, catalogManager } from './js/catalog.js';
+        
+        // Diseñador
         import { DesignerManager, designerManager } from './js/designer.js';
+        
+        // Carrito
+        import { cartManager as cartManagerInstance } from './js/cart.js';
+        
+        // Reportes
         import { ReportManager, reportManager } from './js/reports.js';
+        
+        // Iconos
+        import { ICONS, getIconSVG, createIconElement, getAvailableIcons, searchIcons } from './js/icons.js';
 
-        // Importar contextos
+        // ========================================================
+        // 4️⃣ CONTEXTOS - Estado global de React
+        // ========================================================
+        
         import { AuthContext, AuthProvider, useAuth } from './js/contexts/AuthContext.js';
         import { CartContext, CartProvider, useCart } from './js/contexts/CartContext.js';
         import { AppContext, AppProvider, useApp } from './js/contexts/AppContext.js';
 
-        // Hacer disponibles globalmente para debugging
+        // ========================================================
+        // 5️⃣ COMPONENTES - UI de React
+        // ========================================================
+        
+        // Componentes principales
+        import DesignerPage from './js/components/DesignerPage.js';
+        import CartDrawer from './js/components/CartDrawer.js';
+        import FloatingActions from './js/components/FloatingActions.js';
+        import ProductPreview from './js/components/ProductPreview.js';
+
+        // ========================================================
+        // 🌍 HACER DISPONIBLE GLOBALMENTE PARA DEBUGGING
+        // ========================================================
+        
         window.YOLIMAR = {
+            // Configuración
             config: {
                 colors: COLOR_SYSTEM,
                 typography: TYPOGRAPHY,
-                configData: CONFIG_DATA,
-                storeInfo: STORE_INFO
+                constants: {
+                    SIZE_GROUPS,
+                    AVAILABLE_SIZES,
+                    TYPE_IMAGES,
+                    CONFIG_DATA,
+                    IMAGES_DB,
+                    DESIGNS_DB
+                },
+                storeData: STORE_INFO
             },
+            
+            // Utilidades
             utils: {
                 priceCalculator: {
                     getPriceByTypeAndSize,
                     getPriceWithDiscount,
                     calculateTotalPrice,
                     calculatePriceBreakdown,
-                    calculateCartTotal
+                    calculateCartTotal,
+                    getDiscountInfo,
+                    hasDiscount,
+                    getQuantityForDiscount,
+                    calculateTotalSavings,
+                    getPriceRange,
+                    formatPrice,
+                    comparePrices
                 },
-                helpers,
-                imageLoader
+                helpers: {
+                    getColorName,
+                    getColorCode,
+                    getColorsFromProduct,
+                    getSizesFromProduct,
+                    getColorNamesFromProduct,
+                    getSizeNamesFromProduct,
+                    getMinPriceFromProduct,
+                    getMaxPriceFromProduct,
+                    getTotalStockFromProduct,
+                    getDesignNameFromPath,
+                    formatPrice: formatPriceHelper,
+                    formatDate,
+                    formatTime,
+                    formatDateTime,
+                    isValidEmail,
+                    isValidPhone,
+                    capitalize,
+                    toUpperCase,
+                    toLowerCase,
+                    toTitleCase,
+                    generateRandomNumber,
+                    generateUniqueId,
+                    copyToClipboard,
+                    downloadFile,
+                    calculatePercentage,
+                    calculateDiscount,
+                    calculateDiscountedPrice,
+                    calculateTax,
+                    calculatePriceWithTax,
+                    searchInArray,
+                    sortArray,
+                    groupArray,
+                    getArrayStats,
+                    delay,
+                    retry,
+                    saveToLocalStorage,
+                    getFromLocalStorage,
+                    removeFromLocalStorage,
+                    clearLocalStorage
+                },
+                imageLoader: {
+                    createPlaceholderImage,
+                    getAbsoluteImageUrl,
+                    loadImageAsBase64,
+                    preloadProductImages,
+                    insertImageInPDF,
+                    getImageDimensions,
+                    convertImageFormat,
+                    getImageInfo
+                }
             },
+            
+            // Gestores
             managers: {
                 authManager,
                 adminDataManager,
-                cartManager,
+                cartManager: cartManagerInstance,
                 catalogManager,
                 designerManager,
                 reportManager
             },
+            
+            // Contextos
             contexts: {
                 AuthContext,
                 CartContext,
-                AppContext
+                AppContext,
+                useAuth,
+                useCart,
+                useApp
+            },
+            
+            // Iconos
+            icons: {
+                ICONS,
+                getIconSVG,
+                createIconElement,
+                getAvailableIcons,
+                searchIcons
             }
         };
 
-        console.log('✅ Yolimar 3.0 - Módulos cargados correctamente');
+        console.log('✅ Yolimar 3.0 - Todos los módulos importados correctamente');
         console.log('📦 Acceso global: window.YOLIMAR');
+        console.log('📋 Total de módulos cargados:', Object.keys(window.YOLIMAR).length);
     </script>
 
-    <!-- Aplicación React -->
+    <!-- ============================================================
+         🎯 APLICACIÓN REACT PRINCIPAL
+    ============================================================ -->
     <script type="text/babel">
-        const { useState, useEffect, createContext, useContext } = React;
+        const { useState, useEffect } = React;
         const { HashRouter, Routes, Route, Link, useNavigate } = ReactRouterDOM;
 
-        // ============================================
-        // 🎨 COMPONENTES PRINCIPALES
-        // ============================================
+        // ========================================================
+        // 🧩 COMPONENTES AUXILIARES
+        // ========================================================
 
         /**
          * Componente Navbar
@@ -156,7 +355,7 @@
                                 className="text-white px-4 py-2 rounded-lg flex items-center gap-2"
                                 style={{ backgroundColor: '#9333ea' }}
                             >
-                                ⚙️ <span className="hidden sm:inline">Admin</span>
+                                <span>⚙️</span> <span className="hidden sm:inline">Admin</span>
                             </button>
                         ) : (
                             <button 
@@ -164,16 +363,16 @@
                                 className="px-4 py-2 rounded-lg flex items-center gap-2"
                                 style={{ backgroundColor: '#ffffff', color: '#64748b' }}
                             >
-                                🔒 <span className="hidden sm:inline">Admin</span>
+                                <span>🔒</span> <span className="hidden sm:inline">Admin</span>
                             </button>
                         )}
                         
                         <button 
                             onClick={() => setIsCartOpen(true)} 
-                            className="text-white px-4 py-2 rounded-lg flex items-center gap-2 relative"
+                            className="text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 relative"
                             style={{ backgroundColor: '#0d9488' }}
                         >
-                            🛒
+                            <span>🛒</span>
                             {totalItems > 0 && (
                                 <span 
                                     className="absolute -top-2 -right-2 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-white"
@@ -283,148 +482,302 @@
          * Página de Catálogo
          */
         const CatalogPage = () => {
+            const { addToCatalogCart } = useCart();
+            const [filter, setFilter] = useState('all');
+            const [currentPage, setCurrentPage] = useState(1);
+            const productsPerPage = 12;
+
+            // Funciones auxiliares
+            const getMinPrice = (product) => {
+                if (!product.variants || product.variants.length === 0) return 0;
+                return Math.min(...product.variants.map(v => v.price));
+            };
+
+            const getMaxPrice = (product) => {
+                if (!product.variants || product.variants.length === 0) return 0;
+                return Math.max(...product.variants.map(v => v.price));
+            };
+
+            const getTotalStock = (product) => {
+                if (!product.variants || product.variants.length === 0) return 0;
+                return product.variants.reduce((sum, v) => sum + v.stock, 0);
+            };
+
+            const getColors = (product) => {
+                if (!product.variants || product.variants.length === 0) return [];
+                return [...new Set(product.variants.map(v => v.color))];
+            };
+
+            // Filtrar productos
+            const filteredProducts = CATALOG_PRODUCTS.filter(p => filter === 'all' || p.type === filter);
+            const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+            const currentProducts = filteredProducts.slice((currentPage - 1) * productsPerPage, currentPage * productsPerPage);
+
+            const handleAddToCart = (product, color, size, quantity) => {
+                addToCatalogCart(product, color, size, quantity);
+            };
+
             return (
-                <div className="container mx-auto px-4 py-8">
-                    <h1 className="text-4xl font-bold mb-8">Catálogo de Productos</h1>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {CATALOG_PRODUCTS.map(product => (
-                            <div key={product.id} className="border rounded-lg overflow-hidden hover:shadow-lg transition">
-                                <img src={product.image} alt={product.name} className="w-full h-48 object-cover" />
-                                <div className="p-4">
-                                    <h3 className="font-bold text-lg">{product.name}</h3>
-                                    <p className="text-gray-600 text-sm mb-2">{product.description}</p>
-                                    <p className="text-teal-600 font-bold">S/. {product.variants[0]?.price || 0}</p>
+                <div className="max-w-7xl mx-auto px-6 py-12">
+                    {/* Filtros */}
+                    <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+                        <div className="flex flex-wrap gap-4 justify-center">
+                            {['all', 'blusa', 'saco', 'polera', 'solera'].map(type => (
+                                <button 
+                                    key={type} 
+                                    onClick={() => {
+                                        setFilter(type);
+                                        setCurrentPage(1);
+                                    }}
+                                    style={{ 
+                                        backgroundColor: filter === type ? '#0d9488' : '#f8fafc',
+                                        color: filter === type ? '#ffffff' : '#64748b'
+                                    }}
+                                    className="px-5 py-2 rounded-full font-medium transition-colors hover:opacity-90"
+                                >
+                                    {type === 'all' ? 'Todos' : (type.charAt(0).toUpperCase() + type.slice(1) + 's')}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Grid de productos */}
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {currentProducts.map(product => {
+                            const minPrice = getMinPrice(product);
+                            const maxPrice = getMaxPrice(product);
+                            const totalStock = getTotalStock(product);
+                            const colors = getColors(product);
+                            const config = CONFIG_DATA.types[product.type];
+
+                            return (
+                                <div key={product.id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                                    <div className="bg-gray-100 p-6 relative h-56 flex items-center justify-center">
+                                        <img src={product.image} className="w-full h-full object-contain" alt={product.name} />
+                                        {product.badge && (
+                                            <span className="absolute top-3 left-3 bg-teal-600 text-white text-xs px-3 py-1 rounded-full font-bold">
+                                                {product.badge}
+                                            </span>
+                                        )}
+                                        {totalStock <= 5 && (
+                                            <span className="absolute bottom-3 right-3 bg-red-500 text-white text-xs px-3 py-1 rounded-full font-bold">
+                                                Stock: {totalStock}
+                                            </span>
+                                        )}
+                                    </div>
+                                    
+                                    <div className="p-6">
+                                        <div className="text-teal-600 text-xs font-bold uppercase tracking-wide mb-1">{product.type}</div>
+                                        <h3 className="font-bold text-xl mb-2">{product.name}</h3>
+                                        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
+                                        
+                                        {/* Colores disponibles */}
+                                        <div className="flex gap-2 mb-4 flex-wrap">
+                                            {colors.map(color => (
+                                                <div 
+                                                    key={color} 
+                                                    className="w-6 h-6 rounded-full border-2 border-gray-200" 
+                                                    style={{backgroundColor: COLOR_MAP[color] || color}}
+                                                    title={COLOR_NAMES[color] || color}
+                                                />
+                                            ))}
+                                        </div>
+                                        
+                                        <div className="flex items-center justify-between pt-4 border-t">
+                                            <div>
+                                                <span className="text-teal-600 font-bold text-xl">Bs {minPrice.toFixed(2)}</span>
+                                                {minPrice !== maxPrice && (
+                                                    <span className="text-gray-500 text-sm"> - Bs {maxPrice.toFixed(2)}</span>
+                                                )}
+                                                {config.discount.enabled && (
+                                                    <div className="text-teal-600 text-xs mt-1">{config.discount.description}</div>
+                                                )}
+                                            </div>
+                                            <button 
+                                                onClick={() => {
+                                                    // Seleccionar primera variante disponible
+                                                    const firstVariant = product.variants[0];
+                                                    if (firstVariant) {
+                                                        handleAddToCart(product, firstVariant.color, firstVariant.size, 1);
+                                                    }
+                                                }}
+                                                style={{ backgroundColor: '#0d9488', color: '#ffffff' }}
+                                                className="px-5 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity"
+                                            >
+                                                Agregar 🛒
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
+
+                    {/* Paginación */}
+                    {totalPages > 1 && (
+                        <div className="flex flex-col items-center gap-4 mt-16">
+                            <div className="flex items-center gap-2">
+                                <button 
+                                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                                    disabled={currentPage === 1}
+                                    style={{ borderColor: '#0d9488', color: '#0d9488' }}
+                                    className="p-3 rounded-xl bg-white border disabled:opacity-20 hover:bg-teal-50 transition-all"
+                                >
+                                    ← Anterior
+                                </button>
+                                
+                                {[...Array(totalPages)].map((_, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => setCurrentPage(i + 1)}
+                                        style={{
+                                            backgroundColor: currentPage === i + 1 ? '#0d9488' : 'white',
+                                            color: currentPage === i + 1 ? '#ffffff' : '#64748b',
+                                            borderColor: currentPage === i + 1 ? '#0d9488' : 'transparent'
+                                        }}
+                                        className="w-11 h-11 rounded-xl font-bold transition-all border"
+                                    >
+                                        {i + 1}
+                                    </button>
+                                ))}
+                                
+                                <button 
+                                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                                    disabled={currentPage === totalPages}
+                                    style={{ borderColor: '#0d9488', color: '#0d9488' }}
+                                    className="p-3 rounded-xl bg-white border disabled:opacity-20 hover:bg-teal-50 transition-all"
+                                >
+                                    Siguiente →
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             );
         };
 
         /**
-         * Página de Diseñador
+         * Panel de Administración
          */
-        const DesignerPage = () => {
-            return (
-                <div className="container mx-auto px-4 py-8">
-                    <h1 className="text-4xl font-bold mb-8">Diseñador Personalizado</h1>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <div className="bg-gray-100 rounded-lg p-8 flex items-center justify-center min-h-96">
-                            <div className="text-center">
-                                <p className="text-6xl mb-4">👕</p>
-                                <p className="text-gray-600">Vista previa del diseño</p>
-                            </div>
-                        </div>
-                        <div className="space-y-6">
-                            <h2 className="text-2xl font-bold">Personaliza tu prenda</h2>
-                            <div>
-                                <label className="block text-sm font-medium mb-2">Tipo de prenda</label>
-                                <select className="w-full px-4 py-2 border rounded-lg">
-                                    <option>Polera</option>
-                                    <option>Saco</option>
-                                    <option>Blusa</option>
-                                    <option>Solera</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-2">Color</label>
-                                <select className="w-full px-4 py-2 border rounded-lg">
-                                    <option>Blanco</option>
-                                    <option>Negro</option>
-                                    <option>Rojo</option>
-                                    <option>Azul</option>
-                                </select>
-                            </div>
-                            <button className="w-full px-6 py-3 rounded-lg font-bold text-white" style={{ backgroundColor: '#0d9488' }}>
-                                Agregar al carrito
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        /**
-         * Página de Admin
-         */
-        const AdminPage = () => {
+        const AdminPanel = () => {
             const { user, logout } = useAuth();
-            
+            const navigate = useNavigate();
+
             if (!user) {
-                return (
-                    <div className="container mx-auto px-4 py-8 text-center">
-                        <p className="text-xl text-gray-600">Debes iniciar sesión para acceder al panel de administración</p>
-                    </div>
-                );
+                navigate('/');
+                return null;
             }
 
             return (
-                <div className="container mx-auto px-4 py-8">
-                    <div className="flex justify-between items-center mb-8">
-                        <h1 className="text-4xl font-bold">Panel de Administración</h1>
-                        <button 
-                            onClick={logout}
-                            className="px-6 py-2 bg-red-500 text-white rounded-lg font-medium"
-                        >
-                            Cerrar sesión
-                        </button>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        <div className="bg-white border rounded-lg p-6">
-                            <h3 className="text-gray-600 text-sm font-medium mb-2">Pedidos totales</h3>
-                            <p className="text-3xl font-bold">0</p>
-                        </div>
-                        <div className="bg-white border rounded-lg p-6">
-                            <h3 className="text-gray-600 text-sm font-medium mb-2">Ingresos</h3>
-                            <p className="text-3xl font-bold">S/. 0.00</p>
-                        </div>
-                        <div className="bg-white border rounded-lg p-6">
-                            <h3 className="text-gray-600 text-sm font-medium mb-2">Productos</h3>
-                            <p className="text-3xl font-bold">{CATALOG_PRODUCTS.length}</p>
+                <div className="min-h-screen bg-gray-100">
+                    <div className="bg-gradient-to-r from-teal-600 to-teal-700 text-white p-4 shadow-lg">
+                        <div className="max-w-6xl mx-auto flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <button onClick={() => navigate('/')} className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg flex items-center gap-2">
+                                    ← Volver
+                                </button>
+                                <h1 className="text-2xl font-bold">Panel de Administración</h1>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <span className="text-sm bg-white/20 px-3 py-1 rounded-full">👤 {user.name || user.email}</span>
+                                <button onClick={logout} className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg text-sm font-medium">
+                                    Cerrar Sesión
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div className="bg-white border rounded-lg p-6">
-                        <h2 className="text-2xl font-bold mb-4">Información del usuario</h2>
-                        <p><strong>Nombre:</strong> {user.name}</p>
-                        <p><strong>Email:</strong> {user.email}</p>
-                        <p><strong>Rol:</strong> {user.role}</p>
+
+                    <div className="max-w-6xl mx-auto p-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            <div className="bg-white rounded-lg p-6 shadow">
+                                <h3 className="text-gray-600 text-sm font-medium mb-2">Pedidos totales</h3>
+                                <p className="text-3xl font-bold">{adminDataManager.getStats().totalOrders}</p>
+                            </div>
+                            <div className="bg-white rounded-lg p-6 shadow">
+                                <h3 className="text-gray-600 text-sm font-medium mb-2">Ingresos</h3>
+                                <p className="text-3xl font-bold">Bs {adminDataManager.getStats().totalRevenue.toFixed(2)}</p>
+                            </div>
+                            <div className="bg-white rounded-lg p-6 shadow">
+                                <h3 className="text-gray-600 text-sm font-medium mb-2">Productos</h3>
+                                <p className="text-3xl font-bold">{CATALOG_PRODUCTS.length}</p>
+                            </div>
+                        </div>
+                        
+                        <div className="bg-white rounded-lg p-6 shadow">
+                            <h2 className="text-2xl font-bold mb-4">Información del usuario</h2>
+                            <p><strong>Nombre:</strong> {user.name}</p>
+                            <p><strong>Email:</strong> {user.email}</p>
+                            <p><strong>Rol:</strong> {user.role}</p>
+                            <p><strong>Login:</strong> {new Date(user.loginTime).toLocaleString()}</p>
+                        </div>
                     </div>
                 </div>
             );
         };
 
-        /**
-         * Aplicación principal
-         */
-        const App = () => {
-            return (
-                <AppProvider>
-                    <AuthProvider>
-                        <CartProvider>
-                            <HashRouter>
-                                <div className="min-h-screen bg-white">
-                                    <Navbar />
-                                    <AdminLoginModal />
-                                    
-                                    <Routes>
-                                        <Route path="/" element={<CatalogPage />} />
-                                        <Route path="/disenador" element={<DesignerPage />} />
-                                        <Route path="/admin" element={<AdminPage />} />
-                                    </Routes>
-                                </div>
-                            </HashRouter>
-                        </CartProvider>
-                    </AuthProvider>
-                </AppProvider>
-            );
-        };
+        // ========================================================
+        // 🚀 APLICACIÓN PRINCIPAL
+        // ========================================================
 
-        // Renderizar aplicación
+        const App = () => (
+            <HashRouter>
+                <AuthProvider>
+                    <CartProvider>
+                        <AppProvider>
+                            <div className="min-h-screen bg-gray-50">
+                                <Navbar />
+                                <FloatingActions />
+                                
+                                <Routes>
+                                    <Route path="/" element={<CatalogPage />} />
+                                    <Route path="/disenador" element={<DesignerPage />} />
+                                    <Route path="/admin" element={<AdminPanel />} />
+                                </Routes>
+                                
+                                <CartDrawer />
+                                <AdminLoginModal />
+                            </div>
+                        </AppProvider>
+                    </CartProvider>
+                </AuthProvider>
+            </HashRouter>
+        );
+
+        // ========================================================
+        // 🎯 RENDERIZAR APLICACIÓN
+        // ========================================================
+
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
+
+    <!-- ============================================================
+         🎨 FOOTER
+    ============================================================ -->
+    <footer style="background: linear-gradient(135deg, #0d9488, #115e59); padding: 32px 0; margin-top: 64px;">
+        <div style="max-width: 1280px; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; font-size: 14px;">
+            <div>
+                <h3 style="font-weight: bold; font-size: 18px; margin-bottom: 8px; color: #ffffff;">YOLIMAR</h3>
+                <p style="margin-bottom: 8px; color: rgba(255,255,255,0.75);">Textiles de calidad con diseño personalizado.</p>
+                <p style="margin-top: 8px; color: rgba(255,255,255,0.75);">📍 Feria Barrio Lindo Pasillo Potosi Puesto NRO. 1038, Santa Cruz de la Sierra</p>
+                <p style="color: rgba(255,255,255,0.75);">📞 WhatsApp: +591 76319999</p>
+            </div>
+            <div>
+                <h4 style="font-weight: 600; margin-bottom: 8px; color: #ffffff;">Enlaces Rápidos</h4>
+                <ul style="list-style: none; padding: 0; margin: 0; color: rgba(255,255,255,0.75);">
+                    <li style="margin-bottom: 4px;"><a href="#/" style="color: rgba(255,255,255,0.75); text-decoration: none;">Catálogo</a></li>
+                    <li style="margin-bottom: 4px;"><a href="#/disenador" style="color: rgba(255,255,255,0.75); text-decoration: none;">Diseñador</a></li>
+                    <li style="margin-bottom: 4px;"><a href="#/admin" style="color: rgba(255,255,255,0.75); text-decoration: none;">Admin</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 style="font-weight: 600; margin-bottom: 8px; color: #ffffff;">Horario</h4>
+                <p style="color: rgba(255,255,255,0.75);">Miércoles y Sábado: 5:00 - 18:00</p>
+                <div style="margin-top: 16px; font-size: 12px; color: rgba(255,255,255,0.5);">
+                    © 2025 YOLIMAR. Todos los derechos reservados.
+                </div>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
