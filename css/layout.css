@@ -1,0 +1,489 @@
+/**
+ * 📐 ESTILOS DE LAYOUT
+ * Estructura y disposición de elementos
+ */
+
+/* ============================================
+   NAVBAR
+   ============================================ */
+
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--spacing-lg);
+    height: 4rem;
+    background: linear-gradient(to right, var(--color-primary), var(--color-primary-dark));
+    color: var(--color-text-on-primary);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-md);
+}
+
+.navbar-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-weight: bold;
+    font-size: var(--size-lg);
+    letter-spacing: -0.05em;
+}
+
+.navbar-logo img {
+    max-width: 120px;
+    max-height: 40px;
+}
+
+.navbar-links {
+    display: none;
+    gap: var(--spacing-2xl);
+    font-weight: 500;
+}
+
+@media (min-width: 768px) {
+    .navbar-links {
+        display: flex;
+    }
+}
+
+.navbar-links a {
+    color: var(--color-text-on-primary);
+    transition: opacity var(--transition-fast);
+}
+
+.navbar-links a:hover {
+    opacity: 0.8;
+}
+
+.navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.navbar-btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    transition: all var(--transition-fast);
+    border: none;
+    cursor: pointer;
+    color: var(--color-text-on-primary);
+}
+
+.navbar-btn:hover {
+    opacity: 0.9;
+}
+
+.navbar-btn-admin {
+    background-color: #9333ea;
+}
+
+.navbar-btn-cart {
+    position: relative;
+    background-color: var(--color-primary);
+}
+
+.navbar-cart-badge {
+    position: absolute;
+    top: -0.5rem;
+    right: -0.5rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 9999px;
+    background-color: var(--color-error);
+    color: var(--color-text-on-primary);
+    font-size: var(--size-xs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--color-secondary);
+    font-weight: bold;
+}
+
+/* ============================================
+   CONTENEDOR PRINCIPAL
+   ============================================ */
+
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+}
+
+.container-sm {
+    max-width: 640px;
+}
+
+.container-md {
+    max-width: 896px;
+}
+
+.container-lg {
+    max-width: 1152px;
+}
+
+/* ============================================
+   GRID
+   ============================================ */
+
+.grid {
+    display: grid;
+    gap: var(--spacing-lg);
+}
+
+.grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 768px) {
+    .grid-cols-2,
+    .grid-cols-3,
+    .grid-cols-4 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 768px) {
+    .grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    
+    .grid-cols-3,
+    .grid-cols-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    .grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    
+    .grid-cols-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+/* ============================================
+   CARRITO
+   ============================================ */
+
+.cart-drawer {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.cart-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+}
+
+.cart-panel {
+    position: relative;
+    width: 100%;
+    max-width: 28rem;
+    height: 100%;
+    background: var(--color-secondary);
+    box-shadow: -10px 0 25px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    animation: slideInRight var(--transition-base);
+}
+
+.cart-header {
+    background-color: var(--color-primary);
+    color: var(--color-text-on-primary);
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cart-header h2 {
+    font-weight: bold;
+    font-size: var(--size-xl);
+    margin: 0;
+}
+
+.cart-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.cart-item {
+    display: flex;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    align-items: flex-start;
+}
+
+.cart-item-image {
+    width: 4rem;
+    height: 5rem;
+    background: var(--color-secondary-dark);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.cart-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.cart-item-content {
+    flex: 1;
+}
+
+.cart-item-badges {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+    flex-wrap: wrap;
+}
+
+.cart-item-name {
+    font-weight: bold;
+    font-size: var(--size-sm);
+    line-height: 1.25;
+    margin-top: var(--spacing-xs);
+}
+
+.cart-item-details {
+    font-size: var(--size-xs);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-xs);
+}
+
+.cart-item-qty {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+}
+
+.cart-item-qty button {
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: var(--color-border);
+    border-radius: 9999px;
+    font-size: var(--size-sm);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.cart-item-qty button:hover {
+    background-color: var(--color-primary);
+    color: var(--color-text-on-primary);
+}
+
+.cart-item-price {
+    font-weight: bold;
+    margin-top: var(--spacing-xs);
+    color: var(--color-primary);
+}
+
+.cart-item-delete {
+    color: var(--color-error);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.cart-item-delete:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+.cart-empty {
+    text-align: center;
+    padding: var(--spacing-2xl) var(--spacing-md);
+    color: var(--color-text-secondary);
+}
+
+.cart-empty-icon {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.cart-footer {
+    padding: var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+    background: var(--color-secondary);
+}
+
+.cart-total {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    font-size: var(--size-xl);
+    margin-bottom: var(--spacing-md);
+}
+
+.cart-total-amount {
+    color: var(--color-primary);
+}
+
+.cart-checkout {
+    width: 100%;
+    padding: var(--spacing-md);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-primary);
+    color: var(--color-text-on-primary);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    transition: all var(--transition-fast);
+    border: none;
+    cursor: pointer;
+}
+
+.cart-checkout:hover:not(:disabled) {
+    background-color: var(--color-primary-dark);
+}
+
+.cart-checkout:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================================
+   PAGINACIÓN
+   ============================================ */
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-2xl);
+}
+
+.pagination-btn {
+    padding: var(--spacing-md);
+    border-radius: var(--radius-lg);
+    background: var(--color-secondary);
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background-color: var(--color-primary-very-light);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.2;
+    cursor: not-allowed;
+}
+
+.pagination-number {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--radius-lg);
+    font-weight: bold;
+    transition: all var(--transition-fast);
+    border: 1px solid transparent;
+    background: var(--color-secondary);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+}
+
+.pagination-number.active {
+    background-color: var(--color-primary);
+    color: var(--color-text-on-primary);
+    border-color: var(--color-primary);
+}
+
+.pagination-number:not(.active):hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+.footer {
+    background-color: var(--color-text-primary);
+    color: var(--color-text-on-primary);
+    padding: var(--spacing-2xl) var(--spacing-md);
+    margin-top: var(--spacing-2xl);
+}
+
+.footer-content {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-2xl);
+}
+
+.footer-section h3 {
+    color: var(--color-text-on-primary);
+    margin-bottom: var(--spacing-md);
+}
+
+.footer-section a {
+    color: var(--color-text-on-primary);
+    opacity: 0.8;
+    transition: opacity var(--transition-fast);
+}
+
+.footer-section a:hover {
+    opacity: 1;
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: var(--spacing-lg);
+    opacity: 0.8;
+}

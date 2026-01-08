@@ -1,0 +1,488 @@
+/**
+ * 🧩 ESTILOS DE COMPONENTES
+ * Estilos para componentes reutilizables
+ */
+
+/* ============================================
+   BOTONES
+   ============================================ */
+
+.btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-family: var(--font-primary);
+    font-size: var(--size-base);
+}
+
+.btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-text-on-primary);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--color-primary-dark);
+}
+
+.btn-secondary {
+    background-color: var(--color-secondary-dark);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background-color: var(--color-border-light);
+}
+
+.btn-danger {
+    background-color: var(--color-error);
+    color: var(--color-text-on-primary);
+}
+
+.btn-danger:hover:not(:disabled) {
+    background-color: #dc2626;
+}
+
+.btn-success {
+    background-color: var(--color-success);
+    color: var(--color-text-on-primary);
+}
+
+.btn-success:hover:not(:disabled) {
+    background-color: #16a34a;
+}
+
+.btn-sm {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--size-sm);
+}
+
+.btn-lg {
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: var(--size-lg);
+}
+
+.btn-block {
+    width: 100%;
+    justify-content: center;
+}
+
+/* ============================================
+   TARJETAS
+   ============================================ */
+
+.card {
+    background: var(--color-secondary);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    transition: all var(--transition-base);
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+}
+
+.card-image {
+    background-color: var(--color-secondary-dark);
+    padding: var(--spacing-lg);
+    position: relative;
+    height: 14rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+}
+
+.card-badge {
+    position: absolute;
+    top: var(--spacing-md);
+    left: var(--spacing-md);
+    font-size: var(--size-sm);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: 9999px;
+    font-weight: bold;
+    color: var(--color-text-on-primary);
+    background-color: var(--color-primary);
+}
+
+.card-badge-discount {
+    top: var(--spacing-md);
+    left: auto;
+    right: var(--spacing-md);
+    background-color: var(--color-warning);
+}
+
+.card-badge-stock {
+    bottom: var(--spacing-md);
+    left: var(--spacing-md);
+    top: auto;
+    background-color: var(--color-error);
+}
+
+.card-content {
+    padding: var(--spacing-lg);
+}
+
+.card-type {
+    font-size: var(--size-sm);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--spacing-xs);
+    color: var(--color-primary);
+}
+
+.card-title {
+    font-weight: bold;
+    font-size: var(--size-xl);
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.card-description {
+    color: var(--color-text-secondary);
+    font-size: var(--size-sm);
+    margin-bottom: var(--spacing-md);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.card-colors {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.card-color {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 9999px;
+    border: 2px solid var(--color-border);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.card-color:hover {
+    transform: scale(1.1);
+    border-color: var(--color-primary);
+}
+
+.card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--color-border);
+}
+
+.card-price {
+    color: var(--color-primary);
+    font-size: var(--size-xl);
+    font-weight: bold;
+}
+
+.card-discount-info {
+    color: var(--color-primary);
+    font-size: var(--size-sm);
+    margin-top: var(--spacing-xs);
+}
+
+/* ============================================
+   FORMULARIOS
+   ============================================ */
+
+.form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.form-label {
+    display: block;
+    font-size: var(--size-sm);
+    font-weight: 500;
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--size-base);
+    font-family: var(--font-primary);
+    transition: all var(--transition-fast);
+    background-color: var(--color-secondary);
+    color: var(--color-text-primary);
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-very-light);
+}
+
+.form-input::placeholder {
+    color: var(--color-text-secondary);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 6rem;
+}
+
+.form-error {
+    border-color: var(--color-error) !important;
+}
+
+.form-error-message {
+    color: var(--color-error);
+    font-size: var(--size-sm);
+    margin-top: var(--spacing-xs);
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+
+.badge {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: 9999px;
+    font-size: var(--size-sm);
+    font-weight: 600;
+}
+
+.badge-primary {
+    background-color: var(--color-primary-very-light);
+    color: var(--color-primary);
+}
+
+.badge-success {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: var(--color-success);
+}
+
+.badge-warning {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: var(--color-warning);
+}
+
+.badge-error {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--color-error);
+}
+
+/* ============================================
+   ALERTAS
+   ============================================ */
+
+.alert {
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    border-left: 4px solid;
+    margin-bottom: var(--spacing-md);
+}
+
+.alert-success {
+    background-color: rgba(34, 197, 94, 0.1);
+    border-color: var(--color-success);
+    color: #166534;
+}
+
+.alert-error {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-color: var(--color-error);
+    color: #7f1d1d;
+}
+
+.alert-warning {
+    background-color: rgba(245, 158, 11, 0.1);
+    border-color: var(--color-warning);
+    color: #78350f;
+}
+
+.alert-info {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-color: var(--color-info);
+    color: #1e3a8a;
+}
+
+/* ============================================
+   MODALES
+   ============================================ */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: var(--spacing-md);
+}
+
+.modal {
+    background: var(--color-secondary);
+    border-radius: var(--radius-2xl);
+    width: 100%;
+    max-width: 28rem;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideIn var(--transition-base);
+}
+
+.modal-header {
+    background: linear-gradient(to right, var(--color-primary), var(--color-primary-dark));
+    color: var(--color-text-on-primary);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    font-size: var(--size-xl);
+    font-weight: bold;
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    color: var(--color-text-on-primary);
+    cursor: pointer;
+    padding: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    font-size: var(--size-xl);
+}
+
+.modal-body {
+    padding: var(--spacing-lg);
+}
+
+.modal-footer {
+    padding: var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.modal-footer button {
+    flex: 1;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    border: none;
+    cursor: pointer;
+}
+
+.modal-footer-cancel {
+    background-color: var(--color-secondary-dark);
+    color: var(--color-text-primary);
+}
+
+.modal-footer-cancel:hover {
+    background-color: var(--color-border);
+}
+
+.modal-footer-submit {
+    background-color: var(--color-primary);
+    color: var(--color-text-on-primary);
+}
+
+.modal-footer-submit:hover {
+    background-color: var(--color-primary-dark);
+}
+
+/* ============================================
+   TABLAS
+   ============================================ */
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--color-secondary);
+}
+
+.table thead {
+    background-color: var(--color-secondary-dark);
+    border-bottom: 2px solid var(--color-border);
+}
+
+.table th {
+    padding: var(--spacing-md);
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.table td {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.table tbody tr:hover {
+    background-color: var(--color-secondary-dark);
+}
+
+/* ============================================
+   SPINNER
+   ============================================ */
+
+.spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

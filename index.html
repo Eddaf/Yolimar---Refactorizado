@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin-allow-popups">
+    <meta http-equiv="Cross-Origin-Embedder-Policy" content="require-corp">
+    
+    <title>Yolimar - Ropa & Diseños Personalizados</title>
+    
+    <!-- React y dependencias -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/history@5/umd/history.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-router@6.3.0/umd/react-router.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-router-dom@6.3.0/umd/react-router-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- PDF y reportes -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    
+    <!-- Estilos globales -->
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    
+    <style>
+        ::-webkit-scrollbar { width: 8px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #0d9488; border-radius: 4px; }
+        .animate-slide-in { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        .polera-blend { mix-blend-mode: multiply; }
+    </style>
+</head>
+<body class="bg-white text-gray-900 font-sans antialiased">
+    <div id="root"></div>
+
+    <!-- Módulos de configuración -->
+    <script type="module">
+        // Importar configuración
+        import { COLOR_SYSTEM, COLOR_MAP, COLOR_NAMES } from './config/colors.js';
+        import { TYPOGRAPHY, TEXT_STYLES } from './config/typography.js';
+        import { 
+            CONFIG_DATA, 
+            ADMIN_USERS, 
+            CATALOG_PRODUCTS,
+            IMAGES_DB,
+            DESIGNS_DB,
+            SIZE_GROUPS
+        } from './config/constants.js';
+        import { STORE_INFO } from './config/storeData.js';
+
+        // Importar utilidades
+        import { 
+            getPriceByTypeAndSize,
+            getPriceWithDiscount,
+            calculateTotalPrice,
+            calculatePriceBreakdown,
+            calculateCartTotal
+        } from './js/utils/priceCalculator.js';
+        import { CartManager, cartManager } from './js/utils/cartManager.js';
+        import * as helpers from './js/utils/helpers.js';
+        import * as imageLoader from './js/utils/imageLoader.js';
+        import { ICONS, getIconSVG } from './js/icons.js';
+
+        // Importar gestores
+        import { AuthManager, AdminDataManager, authManager, adminDataManager } from './js/admin.js';
+        import { CatalogManager, catalogManager } from './js/catalog.js';
+        import { DesignerManager, designerManager } from './js/designer.js';
+        import { ReportManager, reportManager } from './js/reports.js';
+
+        // Importar contextos
+        import { AuthContext, AuthProvider, useAuth } from './js/contexts/AuthContext.js';
+        import { CartContext, CartProvider, useCart } from './js/contexts/CartContext.js';
+        import { AppContext, AppProvider, useApp } from './js/contexts/AppContext.js';
+
+        // Hacer disponibles globalmente para debugging
+        window.YOLIMAR = {
+            config: {
+                colors: COLOR_SYSTEM,
+                typography: TYPOGRAPHY,
+                configData: CONFIG_DATA,
+                storeInfo: STORE_INFO
+            },
+            utils: {
+                priceCalculator: {
+                    getPriceByTypeAndSize,
+                    getPriceWithDiscount,
+                    calculateTotalPrice,
+                    calculatePriceBreakdown,
+                    calculateCartTotal
+                },
+                helpers,
+                imageLoader
+            },
+            managers: {
+                authManager,
+                adminDataManager,
+                cartManager,
+                catalogManager,
+                designerManager,
+                reportManager
+            },
+            contexts: {
+                AuthContext,
+                CartContext,
+                AppContext
+            }
+        };
+
+        console.log('✅ Yolimar 3.0 - Módulos cargados correctamente');
+        console.log('📦 Acceso global: window.YOLIMAR');
+    </script>
+
+    <!-- Aplicación React -->
+    <script type="text/babel">
+        const { useState, useEffect, createContext, useContext } = React;
+        const { HashRouter, Routes, Route, Link, useNavigate } = ReactRouterDOM;
+
+        // ============================================
+        // 🎨 COMPONENTES PRINCIPALES
+        // ============================================
+
+        /**
+         * Componente Navbar
+         */
+        const Navbar = () => {
+            const { user, setShowLogin } = useAuth();
+            const { totalItems, setIsCartOpen } = useCart();
+            const navigate = useNavigate();
+            
+            return (
+                <nav className="sticky top-0 z-50 px-6 h-16 flex items-center justify-between border-b" style={{ backgroundColor: '#0d9488', borderBottomColor: '#e2e8f0' }}>
+                    <Link to="/" className="flex items-center gap-2">
+                        <img 
+                            src="imagenes/Logos/Yolimar_LB.png" 
+                            alt="Logo" 
+                            style={{ maxWidth: '120px', maxHeight: '500px' }}
+                        />
+                    </Link>
+                    
+                    <div className="hidden md:flex gap-8 font-medium">
+                        <Link to="/" style={{ color: '#ffffff' }} className="transition-colors hover:opacity-80">Catálogo</Link>
+                        <Link to="/disenador" style={{ color: '#ffffff' }} className="transition-colors hover:opacity-80">Diseñador</Link>
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                        {user ? (
+                            <button 
+                                onClick={() => navigate('/admin')} 
+                                className="text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                                style={{ backgroundColor: '#9333ea' }}
+                            >
+                                ⚙️ <span className="hidden sm:inline">Admin</span>
+                            </button>
+                        ) : (
+                            <button 
+                                onClick={() => setShowLogin(true)} 
+                                className="px-4 py-2 rounded-lg flex items-center gap-2"
+                                style={{ backgroundColor: '#ffffff', color: '#64748b' }}
+                            >
+                                🔒 <span className="hidden sm:inline">Admin</span>
+                            </button>
+                        )}
+                        
+                        <button 
+                            onClick={() => setIsCartOpen(true)} 
+                            className="text-white px-4 py-2 rounded-lg flex items-center gap-2 relative"
+                            style={{ backgroundColor: '#0d9488' }}
+                        >
+                            🛒
+                            {totalItems > 0 && (
+                                <span 
+                                    className="absolute -top-2 -right-2 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-white"
+                                    style={{ backgroundColor: '#ef4444' }}
+                                >
+                                    {totalItems}
+                                </span>
+                            )}
+                        </button>
+                    </div>
+                </nav>
+            );
+        };
+
+        /**
+         * Componente Login Modal
+         */
+        const AdminLoginModal = () => {
+            const { showLogin, setShowLogin, login } = useAuth();
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const [error, setError] = useState('');
+            const [loading, setLoading] = useState(false);
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                setError('');
+                setLoading(true);
+                
+                setTimeout(() => {
+                    const result = login(email, password);
+                    setLoading(false);
+                    if (!result.success) {
+                        setError(result.error);
+                    }
+                }, 300);
+            };
+
+            if (!showLogin) return null;
+
+            return (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200] p-4">
+                    <div className="bg-white rounded-2xl w-full max-w-sm animate-slide-in">
+                        <div style={{ background: 'linear-gradient(to right, #0d9488, #0a7a6f)', color: '#ffffff' }} className="p-6 rounded-t-2xl flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                                <span>🔒</span>
+                                <h3 className="text-xl font-bold">Acceso Administrador</h3>
+                            </div>
+                            <button onClick={() => setShowLogin(false)}>✕</button>
+                        </div>
+                        
+                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                            {error && <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">{error}</div>}
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input 
+                                    type="email" 
+                                    value={email} 
+                                    onChange={(e) => setEmail(e.target.value)} 
+                                    className="w-full px-4 py-2 border rounded-lg" 
+                                    placeholder="correo@ejemplo.com" 
+                                    required 
+                                />
+                            </div>
+                            
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                                <input 
+                                    type="password" 
+                                    value={password} 
+                                    onChange={(e) => setPassword(e.target.value)} 
+                                    className="w-full px-4 py-2 border rounded-lg" 
+                                    placeholder="********" 
+                                    required 
+                                />
+                            </div>
+                            
+                            <div className="bg-gray-50 p-3 rounded-lg text-xs text-gray-500">
+                                <strong>Usuarios:</strong> eddar@gmail.com / 1234
+                            </div>
+                        </form>
+                        
+                        <div className="p-6 border-t flex gap-3">
+                            <button 
+                                type="button" 
+                                onClick={() => setShowLogin(false)} 
+                                className="flex-1 px-4 py-3 bg-gray-100 rounded-lg font-medium"
+                            >
+                                Cancelar
+                            </button>
+                            <button 
+                                onClick={handleSubmit} 
+                                disabled={loading} 
+                                style={{ backgroundColor: '#0d9488', color: '#ffffff' }} 
+                                className="flex-1 px-4 py-3 rounded-lg font-medium hover:opacity-90"
+                            >
+                                {loading ? '...' : 'Ingresar'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        /**
+         * Página de Catálogo
+         */
+        const CatalogPage = () => {
+            return (
+                <div className="container mx-auto px-4 py-8">
+                    <h1 className="text-4xl font-bold mb-8">Catálogo de Productos</h1>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {CATALOG_PRODUCTS.map(product => (
+                            <div key={product.id} className="border rounded-lg overflow-hidden hover:shadow-lg transition">
+                                <img src={product.image} alt={product.name} className="w-full h-48 object-cover" />
+                                <div className="p-4">
+                                    <h3 className="font-bold text-lg">{product.name}</h3>
+                                    <p className="text-gray-600 text-sm mb-2">{product.description}</p>
+                                    <p className="text-teal-600 font-bold">S/. {product.variants[0]?.price || 0}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        /**
+         * Página de Diseñador
+         */
+        const DesignerPage = () => {
+            return (
+                <div className="container mx-auto px-4 py-8">
+                    <h1 className="text-4xl font-bold mb-8">Diseñador Personalizado</h1>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div className="bg-gray-100 rounded-lg p-8 flex items-center justify-center min-h-96">
+                            <div className="text-center">
+                                <p className="text-6xl mb-4">👕</p>
+                                <p className="text-gray-600">Vista previa del diseño</p>
+                            </div>
+                        </div>
+                        <div className="space-y-6">
+                            <h2 className="text-2xl font-bold">Personaliza tu prenda</h2>
+                            <div>
+                                <label className="block text-sm font-medium mb-2">Tipo de prenda</label>
+                                <select className="w-full px-4 py-2 border rounded-lg">
+                                    <option>Polera</option>
+                                    <option>Saco</option>
+                                    <option>Blusa</option>
+                                    <option>Solera</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-2">Color</label>
+                                <select className="w-full px-4 py-2 border rounded-lg">
+                                    <option>Blanco</option>
+                                    <option>Negro</option>
+                                    <option>Rojo</option>
+                                    <option>Azul</option>
+                                </select>
+                            </div>
+                            <button className="w-full px-6 py-3 rounded-lg font-bold text-white" style={{ backgroundColor: '#0d9488' }}>
+                                Agregar al carrito
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        /**
+         * Página de Admin
+         */
+        const AdminPage = () => {
+            const { user, logout } = useAuth();
+            
+            if (!user) {
+                return (
+                    <div className="container mx-auto px-4 py-8 text-center">
+                        <p className="text-xl text-gray-600">Debes iniciar sesión para acceder al panel de administración</p>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="container mx-auto px-4 py-8">
+                    <div className="flex justify-between items-center mb-8">
+                        <h1 className="text-4xl font-bold">Panel de Administración</h1>
+                        <button 
+                            onClick={logout}
+                            className="px-6 py-2 bg-red-500 text-white rounded-lg font-medium"
+                        >
+                            Cerrar sesión
+                        </button>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div className="bg-white border rounded-lg p-6">
+                            <h3 className="text-gray-600 text-sm font-medium mb-2">Pedidos totales</h3>
+                            <p className="text-3xl font-bold">0</p>
+                        </div>
+                        <div className="bg-white border rounded-lg p-6">
+                            <h3 className="text-gray-600 text-sm font-medium mb-2">Ingresos</h3>
+                            <p className="text-3xl font-bold">S/. 0.00</p>
+                        </div>
+                        <div className="bg-white border rounded-lg p-6">
+                            <h3 className="text-gray-600 text-sm font-medium mb-2">Productos</h3>
+                            <p className="text-3xl font-bold">{CATALOG_PRODUCTS.length}</p>
+                        </div>
+                    </div>
+                    
+                    <div className="bg-white border rounded-lg p-6">
+                        <h2 className="text-2xl font-bold mb-4">Información del usuario</h2>
+                        <p><strong>Nombre:</strong> {user.name}</p>
+                        <p><strong>Email:</strong> {user.email}</p>
+                        <p><strong>Rol:</strong> {user.role}</p>
+                    </div>
+                </div>
+            );
+        };
+
+        /**
+         * Aplicación principal
+         */
+        const App = () => {
+            return (
+                <AppProvider>
+                    <AuthProvider>
+                        <CartProvider>
+                            <HashRouter>
+                                <div className="min-h-screen bg-white">
+                                    <Navbar />
+                                    <AdminLoginModal />
+                                    
+                                    <Routes>
+                                        <Route path="/" element={<CatalogPage />} />
+                                        <Route path="/disenador" element={<DesignerPage />} />
+                                        <Route path="/admin" element={<AdminPage />} />
+                                    </Routes>
+                                </div>
+                            </HashRouter>
+                        </CartProvider>
+                    </AuthProvider>
+                </AppProvider>
+            );
+        };
+
+        // Renderizar aplicación
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
